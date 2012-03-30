@@ -6,14 +6,10 @@ carrierwave-docsplit is a thin wrapper around docsplit that knows how to talk to
 
 1. Require the file and drop it into your module.
 
-2. Wire it into the processing queue.
+```ruby extend CarrierWave::DocsplitIntegration ```
+
+2. Hook in the integration.
 
 ```ruby
-process :extract_text_and_images
-```
-
-You can also pass in a `:sizes` option.  Docsplit will generate a set of images of the pages in each.
-
-```ruby
-process :extract_text_and_images, :sizes => ['200x200', '1000x']
+extract_images :to => :thumbs, :sizes => { :large => "300x", :medium => "500x" }
 ```
