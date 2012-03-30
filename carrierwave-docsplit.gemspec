@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Justin Woodbridge"]
   s.email       = ["jwoodbridge@me.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Bring together docsplit and carrierwave in a loving union.}
+  s.description = %q{Bring together docsplit and carrierwave in a loving union.}
 
   s.rubyforge_project = "carrierwave-docsplit"
 
