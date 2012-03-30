@@ -7,9 +7,17 @@ require 'pathname'
 
 module CarrierWave
   module DocsplitIntegration
-    def extract_images(options = {})
+    def extract(options = {})
+      if options[:images]
+        self.setup_image_extraction options[:images]
+      end
 
-      self.instance_eval do
+      if options[:text]
+      end
+    end
+
+    def setup_image_extraction(options)
+       self.instance_eval do
 
         define_method :output_path do
           return nil if self.file.nil?
@@ -55,7 +63,8 @@ module CarrierWave
 
           # Only as single size supplied
           else
-            size = options[:sizes].values.first
+            options.delete :to
+            size = options.values.first
             reduced[size] = dirs_or_files
           end
 

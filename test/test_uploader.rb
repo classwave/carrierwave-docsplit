@@ -23,7 +23,7 @@ class TestUploader < CarrierWave::Uploader::Base
 
   storage :file
 
-  extract_images :to => :thumbs, :sizes => { :large => "300x", :medium => "500x" }
+  extract :images => { :to => :thumbs, :sizes => { :large => "300x", :medium => "500x" } }
 end
 
 class SingleSizeUploader < CarrierWave::Uploader::Base
@@ -43,7 +43,9 @@ class SingleSizeUploader < CarrierWave::Uploader::Base
     file = File.open(File.join(ROOT, 'data/w9_single.pdf'))
   end
 
-  extract_images :to => :thumbs, :sizes => self.sizes
+  image_options = {:to => :thumbs }.merge self.sizes
+
+  extract :images => image_options, :text => "justin"
 end
 
 
@@ -101,6 +103,6 @@ class TestCarrierWaveDocsplit < MiniTest::Unit::TestCase
       uploads.store! file
     end
 
-    assert uploader.thumbs.include?(SingleSizeUploader.sizes.values.first), "#{uploader.thumbs}"
+    assert uploader.thumbs.include?(SingleSizeUploader.sizes.values.first)
   end
 end
