@@ -4,15 +4,45 @@ require 'carrierwave'
 require 'docsplit'
 require 'json'
 require 'pathname'
+require 'fileutils'
 
 module CarrierWave
   module DocsplitIntegration
+
+    class NoModelError < Exception
+      def message
+        "Text extraction requires a model for the uploader to write results to."
+      end
+    end
+
+    # Setup the extraction.
+    #
+    #
+
     def extract(options = {})
       if options[:images]
         self.setup_image_extraction options[:images]
       end
 
       if options[:text]
+        self.setup_text_extraction options[:text]
+      end
+    end
+
+    def setup_text_extraction(options)
+      self.instance_eval do
+        process :enact_text_extraction
+
+        define_method :enact_text_extraction do
+          raise NoModelError if @model.nil?
+
+          out = File.join self.store_dir, self.file.basename
+          FileUtils.mkdir_p out
+          Docsplit.extract_text self.file.path, :ocr => false, :output => out
+          text = File.read Dir.glob(File.join(out, '*.txt')).first
+
+          @model.send "#{options[:to]}=", text
+        end
       end
     end
 

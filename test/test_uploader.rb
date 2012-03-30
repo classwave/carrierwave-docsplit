@@ -8,6 +8,7 @@ $:.unshift File.join "../lib", ROOT
 require 'carrierwave-docsplit'
 
 require 'minitest/unit'
+
 begin; require 'turn/autorun'; rescue LoadError; end
 
 class TestUploader < CarrierWave::Uploader::Base
@@ -45,15 +46,35 @@ class SingleSizeUploader < CarrierWave::Uploader::Base
 
   image_options = {:to => :thumbs }.merge self.sizes
 
-  extract :images => image_options, :text => "justin"
+  extract :images => image_options
 end
 
+class TextExtractionUploader < CarrierWave::Uploader::Base
+  extend CarrierWave::DocsplitIntegration
+
+  def store_dir
+    File.join(ROOT, 'uploads')
+  end
+
+  storage :file
+
+  extract :text => { :to => :tail }
+end
+
+class Pig
+  extend CarrierWave::Mount
+  attr_accessor :tail
+end
 
 TEST_OUTPUT_PATH = File.join ROOT, 'uploads/w9'
 SINGLE_OUTPUT_PATH = File.join ROOT, 'uploads/w9_single'
 
 class TestCarrierWaveDocsplit < MiniTest::Unit::TestCase
   include CarrierWave::DocsplitIntegration
+
+  def store_dir
+    File.join(ROOT, 'uploads')
+  end
 
   def setup
     @uploader = TestUploader.new
@@ -104,5 +125,19 @@ class TestCarrierWaveDocsplit < MiniTest::Unit::TestCase
     end
 
     assert uploader.thumbs.include?(SingleSizeUploader.sizes.values.first)
+  end
+
+  def test_that_text_extraction_should_raise_error_if_no_model
+    assert_raises NoModelError do
+      uploader = TextExtractionUploader.new
+      uploader.enact_text_extraction
+    end
+  end
+
+  def test_that_text_is_assigned_to_chosen_attribute
+    Pig.mount_uploader :description, TextExtractionUploader
+    pig = Pig.new
+    pig.description = File.open(File.join(ROOT, 'data/w9.pdf'))
+    assert_equal pig.tail, File.read(File.join(ROOT,'uploads/w9/w9.txt'))
   end
 end
