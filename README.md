@@ -1,6 +1,6 @@
 # CarrierWave + Docsplit: A Loving Union
 
-carrierwave-docsplit is a thin wrapper arund docsplit that knows how to talk to carrierwave.
+carrierwave-docsplit is a thin wrapper around docsplit that knows how to talk to carrierwave.
 
 # Usage
 
