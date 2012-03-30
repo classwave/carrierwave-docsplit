@@ -17,10 +17,38 @@ class TestUploader < CarrierWave::Uploader::Base
     File.join(ROOT, 'uploads')
   end
 
+  def self.file_path
+    file = File.open(File.join(ROOT, 'data/w9.pdf'))
+  end
+
   storage :file
 
   extract_images :to => :thumbs, :sizes => { :large => "300x", :medium => "500x" }
 end
+
+class SingleSizeUploader < CarrierWave::Uploader::Base
+  extend CarrierWave::DocsplitIntegration
+
+  def store_dir
+    File.join(ROOT, 'uploads')
+  end
+
+  storage :file
+
+  def self.sizes
+    { :large => "300x" }
+  end
+
+  def self.file_path
+    file = File.open(File.join(ROOT, 'data/w9_single.pdf'))
+  end
+
+  extract_images :to => :thumbs, :sizes => self.sizes
+end
+
+
+TEST_OUTPUT_PATH = File.join ROOT, 'uploads/w9'
+SINGLE_OUTPUT_PATH = File.join ROOT, 'uploads/w9_single'
 
 class TestCarrierWaveDocsplit < MiniTest::Unit::TestCase
   include CarrierWave::DocsplitIntegration
@@ -34,13 +62,8 @@ class TestCarrierWaveDocsplit < MiniTest::Unit::TestCase
     end
   end
 
-  def verify_extracted_images!
-    path = File.join(ROOT, 'uploads/w9')
-    unless File.exist?(path) && Dir.glob(File.join(path, "*")).any?
-      uploader = TestUploader.new
-      file = File.open(File.join(ROOT, 'data/w9.pdf'))
-      uploader.store! file
-    end
+  def extracted_images_exist?(uploader, output_path)
+    File.exist?(output_path) && Dir.glob(File.join(output_path, "*")).any?
   end
 
   def test_that_read_accessor_is_being_generated
@@ -48,7 +71,12 @@ class TestCarrierWaveDocsplit < MiniTest::Unit::TestCase
   end
 
   def test_that_reader_returns_valid_hash
-    verify_extracted_images!
+    if extracted_images_exist? @uploader, TEST_OUTPUT_PATH
+      @uploader.retrieve_from_store!('w9.pdf')
+    else
+      file = File.open(TestUploader.file_path)
+      @uploader.store! file
+    end
 
     thumbs = @uploader.thumbs
 
@@ -58,9 +86,21 @@ class TestCarrierWaveDocsplit < MiniTest::Unit::TestCase
     assert thumbs.values.all? { |val| val.is_a? Array }
   end
 
-
   def test_that_output_path_returns_nil_if_no_file_stored
     uploader = TestUploader.new
     assert_equal nil, uploader.output_path
+  end
+
+  def test_should_handle_one_size_gracefully
+    uploader = SingleSizeUploader.new
+
+    if extracted_images_exist? uploader, SINGLE_OUTPUT_PATH
+      uploader.retrieve_from_store! 'w9_single.pdf'
+    else
+      file = File.open SingleSizeUploader.file_path
+      uploads.store! file
+    end
+
+    assert uploader.thumbs.include?(SingleSizeUploader.sizes.values.first), "#{uploader.thumbs}"
   end
 end

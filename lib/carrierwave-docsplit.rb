@@ -16,10 +16,9 @@ module CarrierWave
           File.join self.store_dir, self.file.basename
         end
 
-        @sizes = options[:sizes]
-
         # Latch our extraction method into the processing queue.
         process :enact_extraction => options[:sizes]
+
 
         # Define a reader to access the thumbnails stored on disk.
         #
@@ -36,18 +35,28 @@ module CarrierWave
         define_method options[:to] do
           path = File.join(self.output_path, '*')
 
+          dirs_or_files = Dir.glob(path)
           reduced = {}
 
-          Dir.glob(path) do |dirs|
-            if dirs.is_a?(String)
-              dirs = [] << dirs
+          # Multiple Sizes
+          if dirs_or_files.any? { |entry| entry.match /\d+x\d*/ }
+
+            Dir.glob(path) do |dirs|
+              if dirs.is_a?(String)
+                dirs = [] << dirs
+              end
+
+              dirs.each do |dir|
+                thumbs = Dir.glob(File.join(dir, '*'))
+                key = File.basename(dir)
+                reduced[key] = thumbs
+              end
             end
 
-            dirs.each do |dir|
-              thumbs = Dir.glob(File.join(dir, '*'))
-              key = File.basename(dir)
-              reduced[key] = thumbs
-            end
+          # Only as single size supplied
+          else
+            size = options[:sizes].values.first
+            reduced[size] = dirs_or_files
           end
 
           reduced
@@ -72,17 +81,7 @@ module CarrierWave
           FileUtils.mkdir_p out
 
           Docsplit.extract_images self.file.path, :size => sizes.values, :output => out
-
-          inverted_sizes = sizes.invert
-
-          # sizes.values.each do |size|
-          #   path = File.join(out, size, '*')
-          #   version_accessor = inverted_sizes[size]
-          #   self.send (version_accessor.to_s + "=").to_sym, path
-          # end
         end
-
-        # TODO: Enable this shit.
       end
     end
   end
