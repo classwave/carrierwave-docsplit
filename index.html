@@ -1,0 +1,141 @@
+<html>
+<head>
+
+  <script type="text/javascript" src='js/jquery.js'></script>
+  <script type="text/javascript" src='js/rainbow.js'></script>
+
+  <script type="text/javascript">
+    $(document).ready(function() {
+      Rainbow.color();
+    });
+  </script>
+
+  <link href='css/all-hallows-eve.css' rel='stylesheet' />
+
+  <style type="text/css">
+    #main {
+      width: 500px;
+      margin-left: 50px;
+      margin-top: 35px;
+    }
+
+    header {
+      margin-left: 50px;
+      margin-top: 35px;
+    }
+
+    header h1 span {
+      color: rgb(204, 34, 23);
+    }
+
+    body {
+      font-family: "Georgia";
+    }
+
+    p {
+      line-height: 1.5em;
+      font-size: 15px;
+    }
+
+    h1, h2, h3 {
+      font-family: Helvetica;
+    }
+
+    h1 {
+      font-size: 50px;
+    }
+
+    a {
+      color: #666;
+      text-decoration: none;
+      background-color: #EEE;
+      color: #666;
+      padding: 2px;
+    }
+
+    a:hover {
+      color: black;
+      background-color: #DDD;
+    }
+
+    ul, ol {
+      list-style: none;
+      padding: 0;
+    }
+
+    header li {
+      display: inline;
+      margin-right: 15px;
+    }
+
+    strong {
+      color: #333;
+    }
+
+    code {
+      font-family: "Menlo", "inconsolata";
+      font-size: 14px;
+    }
+
+    section {
+      margin-bottom: 50px;
+    }
+
+  </style>
+  <title>Carrierwave + Docsplit</title>
+</head>
+<body>
+
+  <header>
+    <h1>Carrierwave + Docsplit <span>&hearts;</span></h1>
+
+    <ul>
+      <li><a href="#">Source</a></li>
+      <li><a href="#">Installation</a></li>
+      <li><a href="#">Usage</a></li>
+      <li><a href="#">Changelog</a></li>
+    </ul>
+  </header>
+
+
+  <div id='main'>
+    <section>
+
+      <p><strong>Carrierwave</strong> is a gem for uploading files.  <strong>Docsplit</strong> is a gem for bursting pdfs into text and images.  <strong>This project joins them together, lovingly</strong>.</p>
+
+    </section>
+
+    <section>
+
+      <h2>Installation</h2>
+
+      <ol>
+        <li>
+          <p>Drop the gem into your Gemfile.</p>
+          <pre><code data-language='ruby'>gem 'carrierwave-docsplit'</code></pre>
+        </li>
+      </ol>
+    </section>
+
+    <section>
+
+      <h2>Usage</h2>
+
+      <ol style='list-style: numeric;'>
+        <li><p>Extend your uploader with the module.</p>
+
+          <pre><code data-language='ruby'>extend CarrierWave::DocsplitIntegration</code></pre>
+        </li>
+
+        <li><p>Now setup text and or image extraction.</p>
+
+          <pre><code data-language='ruby'>extract :images => { :to => :thumbs },
+        :text => { :to => :text }</code></pre>
+        </li>
+      </ol>
+
+    </section>
+  </div>
+
+</body>
+</html>
